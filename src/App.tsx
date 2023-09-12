@@ -9,40 +9,44 @@ import { faWind } from '@fortawesome/free-solid-svg-icons'
 import { faCloudSun } from '@fortawesome/free-solid-svg-icons/faCloudSun'
 import axios from 'axios'
 import { WeatherOfCity } from './types/weather.type'
+import { isAlpha } from './utils/utils'
 
 const IMAGES = {
   bgHot: hot,
   bgCold: cold
 }
 
+const initialData: WeatherOfCity = {
+  coord: { lon: 0, lat: 0 },
+  weather: [{ id: 0, main: '', description: '', icon: '' }],
+  base: '',
+  main: {
+    temp: 0,
+    feels_like: 0,
+    temp_min: 0,
+    temp_max: 0,
+    pressure: 0,
+    humidity: 0,
+    sea_level: 0,
+    grnd_level: 0
+  },
+  visibility: 0,
+  wind: { speed: 0, deg: 0, gust: 0 },
+  rain: { '1h': 0 },
+  clouds: { all: 0 },
+  dt: 0,
+  sys: { type: 0, id: 0, country: '', sunrise: 0, sunset: 0 },
+  timezone: 0,
+  id: 0,
+  name: '',
+  cod: 0
+}
+
 function App() {
   const [backgroundImage, setBackgroundImage] = useState<string>(IMAGES.bgHot)
   const [cityName, setCityName] = useState<string>('hanoi')
-  const [data, setData] = useState<WeatherOfCity>({
-    coord: { lon: 0, lat: 0 },
-    weather: [{ id: 0, main: '', description: '', icon: '' }],
-    base: '',
-    main: {
-      temp: 0,
-      feels_like: 0,
-      temp_min: 0,
-      temp_max: 0,
-      pressure: 0,
-      humidity: 0,
-      sea_level: 0,
-      grnd_level: 0
-    },
-    visibility: 0,
-    wind: { speed: 0, deg: 0, gust: 0 },
-    rain: { '1h': 0 },
-    clouds: { all: 0 },
-    dt: 0,
-    sys: { type: 0, id: 0, country: '', sunrise: 0, sunset: 0 },
-    timezone: 0,
-    id: 0,
-    name: '',
-    cod: 0
-  })
+  const [searchValue, setSearchValue] = useState<string>('')
+  const [data, setData] = useState(initialData)
   // const { data: cityWeatherData } = useQuery({
   //   queryKey: ['weather', cityName],
   //   queryFn: () => getCity(cityName)
@@ -50,7 +54,11 @@ function App() {
 
   useEffect(() => {
     axios
-      .get(`https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=32453de2fa72fdb0da4feeda287b7d6e`)
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+          cityName
+        )}&appid=32453de2fa72fdb0da4feeda287b7d6e`
+      )
       .then((res) => {
         const cityNameResponse = (res.data.name as string).toLowerCase()
         if (cityNameResponse !== cityName.toLowerCase()) {
@@ -59,6 +67,17 @@ function App() {
         setData(res.data)
       })
   }, [cityName])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (!value.startsWith(' ') && isAlpha(value)) {
+      setSearchValue(e.target.value)
+    }
+  }
+
+  const handleSearch = (value: string) => {
+    setCityName(value.toLocaleLowerCase())
+  }
 
   return (
     <div
@@ -75,7 +94,7 @@ function App() {
         style={{ backgroundImage: 'url(' + backgroundImage + ')' }}
       >
         <div className='w-full relative mb-12'>
-          <button className='absolute h-full left-4'>
+          <button className='absolute h-full left-4' onClick={() => handleSearch(searchValue)}>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               fill='none'
@@ -94,26 +113,28 @@ function App() {
           <input
             type='text'
             placeholder='Search'
-            value={cityName}
-            onChange={(e) => setCityName(e.target.value)}
+            value={searchValue}
+            onChange={handleChange}
             className='w-full h-14 py-3 px-12 bg-[#ffffff2a] placeholder-shown:bg-transparent text-xl text-white placeholder-white font-bold focus:shadow-2xl transition-shadow outline-none rounded-3xl border-white border-4'
           />
-          <button className='absolute h-full right-4'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={3}
-              stroke='currentColor'
-              className='w-6 h-6 text-white'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-              />
-            </svg>
-          </button>
+          {!!searchValue && (
+            <button className='absolute h-full right-4'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={3}
+                stroke='currentColor'
+                className='w-6 h-6 text-white'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  d='M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                />
+              </svg>
+            </button>
+          )}
         </div>
         <div className='text-white text-5xl font-bold text-center drop-shadow-2xl text-shadow-3xl'>
           {data.name} , {data.sys.country}
