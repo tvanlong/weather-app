@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 // import { getCity } from './apis/city.api'
 // import { useQuery } from '@tanstack/react-query'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -47,6 +47,7 @@ function App() {
   const [cityName, setCityName] = useState<string>('hanoi')
   const [searchValue, setSearchValue] = useState<string>('')
   const [data, setData] = useState(initialData)
+  const inputRef = useRef<HTMLInputElement>(null)
   // const { data: cityWeatherData } = useQuery({
   //   queryKey: ['weather', cityName],
   //   queryFn: () => getCity(cityName)
@@ -76,7 +77,13 @@ function App() {
   }
 
   const handleSearch = (value: string) => {
+    setSearchValue('')
     setCityName(value.toLocaleLowerCase())
+  }
+
+  const handleDelete = () => {
+    setSearchValue('')
+    inputRef.current?.focus()
   }
 
   return (
@@ -113,12 +120,13 @@ function App() {
           <input
             type='text'
             placeholder='Search'
+            ref={inputRef}
             value={searchValue}
             onChange={handleChange}
             className='w-full h-14 py-3 px-12 bg-[#ffffff2a] placeholder-shown:bg-transparent text-xl text-white placeholder-white font-bold focus:shadow-2xl transition-shadow outline-none rounded-3xl border-white border-4'
           />
           {!!searchValue && (
-            <button className='absolute h-full right-4'>
+            <button className='absolute h-full right-4' onClick={handleDelete}>
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 fill='none'
