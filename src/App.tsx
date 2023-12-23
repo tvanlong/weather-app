@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-// import { getCity } from './apis/city.api'
-// import { useQuery } from '@tanstack/react-query'
 import hot from './assets/images/hot.png'
 import cold from './assets/images/cold.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -45,10 +43,6 @@ function App() {
   const [searchValue, setSearchValue] = useState<string>('')
   const [data, setData] = useState(initialData)
   const inputRef = useRef<HTMLInputElement>(null)
-  // const { data: cityWeatherData } = useQuery({
-  //   queryKey: ['weather', cityName],
-  //   queryFn: () => getCity(cityName)
-  // })
 
   useEffect(() => {
     axios
